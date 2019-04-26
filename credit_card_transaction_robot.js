@@ -11,7 +11,6 @@ var MongoClient = mongodb.MongoClient;
 
 process.env.TZ = 'Asia/Tokyo';
 
-
 // Helper function to format entries
 function format_entries(table){
 
@@ -65,7 +64,7 @@ function store_in_mongodb(entries){
   });
 }
 
-// Function running PhantomJS to get balance from ebanking web interface
+// Function running PhantomJS to get transactions from ebanking web interface
 async function scrape_transactions(url, credentials) {
 
   var action_index = 0;
@@ -167,7 +166,7 @@ async function scrape_transactions(url, credentials) {
 
 }
 
-// Check balance periodically
+// Scrape periodically
 schedule.scheduleJob('0 5 * * *', () => {
   scrape_transactions(credit_card.login_url,credentials);
 });
