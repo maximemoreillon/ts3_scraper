@@ -1,0 +1,4 @@
+steps_screenshots/
+node_modules/
+config/credentials.js
+config/credit_card.js
