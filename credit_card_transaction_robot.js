@@ -5,10 +5,7 @@ const scraper = require('./scraper')
 const registration = require('./registration')
 const formatter = require('./formatter')
 
-
 process.env.TZ = 'Asia/Tokyo';
-
-
 
 // scrape periodically
 schedule.scheduleJob('0 2 * * *', () => {
@@ -17,8 +14,3 @@ schedule.scheduleJob('0 2 * * *', () => {
     registration.register_transactions(formatted_entries)
   })
 });
-
-scraper.scrape().then(table_content => {
-  let formatted_entries = formatter.format_entries(table_content)
-  console.log(formatted_entries)
-})
