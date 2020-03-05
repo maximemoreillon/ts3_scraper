@@ -14,3 +14,9 @@ schedule.scheduleJob('0 2 * * *', () => {
     registration.register_transactions(formatted_entries)
   })
 });
+
+console.log("Dry run for testing purposes")
+scraper.scrape().then(table_content => {
+  let formatted_entries = formatter.format_entries(table_content)
+  console.log(formatted_entries)
+})
