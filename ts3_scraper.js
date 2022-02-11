@@ -1,4 +1,4 @@
-const log_timestamp = require('log-timestamp')
+// const log_timestamp = require('log-timestamp')
 const schedule = require ('node-schedule')
 const scraper = require('./scraper')
 const registration = require('./registration')
