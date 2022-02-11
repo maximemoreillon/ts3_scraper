@@ -15,20 +15,20 @@ const check_if_next_transactions_page = async (page) =>  page.evaluate(() => { r
 const get_transactions_from_table = async (page) => page.evaluate(() => {
   var table_content = []
 
+  // NOTE: Can't use array functions because NodeList and not Array
+
   var rows = document.querySelectorAll("table")[4].querySelectorAll("tr")
 
   // Should use reduce here
-  for(var row_index=2; row_index<rows.length;row_index++){
+  for(var row_index=2; row_index<rows.length; row_index++){
 
-    table_content.push([]);
+    table_content.push([])
 
-    var cells = rows[row_index].querySelectorAll("td");
+    const cells = rows[row_index].querySelectorAll("td, th")
     for(var cell_index=0; cell_index<cells.length; cell_index ++){
       var content = cells[cell_index].querySelectorAll("span")[0].innerHTML;
-      table_content[table_content.length-1].push(content)
+      table_content[table_content.length-1].push(content) // Push current cell content to array
     }
-    var payment_date = document.getElementById("vo.headVO.PAYDAYYMD").innerHTML;
-    table_content[table_content.length-1].push(payment_date)
   }
   return table_content;
 })
@@ -70,8 +70,8 @@ exports.scrape = async () => {
 
   const transactions = []
   const transactions_of_page = await get_transactions_from_table(page)
-  transactions_of_page.forEach((transaction) => { transactions.push(transaction) })
 
+  transactions_of_page.forEach((transaction) => { transactions.push(transaction) })
 
   while( await check_if_next_transactions_page(page) ) {
     await page.evaluate(() => {
@@ -85,9 +85,8 @@ exports.scrape = async () => {
 
   await browser.close()
 
-  console.log(`[Scraper] Successfully scraped ${transactions.length} transactions`)
 
-  console.log(transactions);
+  console.log(`[Scraper] Successfully scraped ${transactions.length} transactions`)
 
   return transactions
 }
