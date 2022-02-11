@@ -1,6 +1,8 @@
 steps_screenshots/
+screenshots/
 node_modules/
 config/credentials.js
 config/credit_card.js
 secrets.js
 converter.js
+.env
