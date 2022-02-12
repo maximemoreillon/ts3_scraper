@@ -10,6 +10,15 @@ const {
 } = process.env
 
 
+const login = async (page, {TS3_CARD_NUMBER, TS3_PASSWORD}) => page.evaluate( ({TS3_CARD_NUMBER, TS3_PASSWORD}) => {
+  document.querySelectorAll("input[name='vo.CORPCARDNO1']")[0].value = TS3_CARD_NUMBER.substring(0, 4)
+  document.querySelectorAll("input[name='vo.CORPCARDNO2']")[0].value = TS3_CARD_NUMBER.substring(4, 8)
+  document.querySelectorAll("input[name='vo.CORPCARDNO3']")[0].value = TS3_CARD_NUMBER.substring(8, 12)
+  document.querySelectorAll("input[name='vo.CORPCARDNO4']")[0].value = TS3_CARD_NUMBER.substring(12, 16)
+  document.querySelectorAll("input[name='vo.CARDPW']")[0].value = TS3_PASSWORD
+  document.querySelectorAll("a[href='#']")[0].click()
+}, {TS3_CARD_NUMBER, TS3_PASSWORD})
+
 const check_if_next_transactions_page = async (page) =>  page.evaluate(() => { return !!document.querySelectorAll("img[alt='次ページへ']")[0] })
 
 const get_transactions_from_table = async (page) => page.evaluate(() => {
@@ -34,9 +43,9 @@ const get_transactions_from_table = async (page) => page.evaluate(() => {
 })
 
 exports.scrape = async () => {
+  // returns the content of the target trtansaction table
 
   console.log(`[Scraper] Started scraping`)
-  // returns the content of the target trtansaction table
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
 
@@ -46,26 +55,20 @@ exports.scrape = async () => {
   await page.goto(TS3_LOGIN_URL)
 
   // Login
-  page.evaluate( ({TS3_CARD_NUMBER, TS3_PASSWORD}) => {
-    document.querySelectorAll("input[name='vo.CORPCARDNO1']")[0].value = TS3_CARD_NUMBER.substring(0, 4)
-    document.querySelectorAll("input[name='vo.CORPCARDNO2']")[0].value = TS3_CARD_NUMBER.substring(4, 8)
-    document.querySelectorAll("input[name='vo.CORPCARDNO3']")[0].value = TS3_CARD_NUMBER.substring(8, 12)
-    document.querySelectorAll("input[name='vo.CORPCARDNO4']")[0].value = TS3_CARD_NUMBER.substring(12, 16)
-    document.querySelectorAll("input[name='vo.CARDPW']")[0].value = TS3_PASSWORD
-    document.querySelectorAll("a[href='#']")[0].click()
-  }, {TS3_CARD_NUMBER, TS3_PASSWORD})
+  await login(page, {TS3_CARD_NUMBER, TS3_PASSWORD})
   await page.waitForNavigation()
 
-  page.evaluate(() => { document.querySelectorAll("a[href='#']")[0].click() })
-  await page.waitForNavigation();
+  // Click next
+  await page.evaluate(() => { document.querySelectorAll("a[href='#']")[0].click() })
+  await page.waitForNavigation()
 
-  page.evaluate(() => { document.querySelectorAll("input[type='button']")[0].click() })
+  // Click next
+  await page.evaluate(() => { document.querySelectorAll("input[type='button']")[0].click() })
   await page.waitForNavigation()
 
   // Month selection page
   // Select last available month (index = 2)
-  page.evaluate(() => { document.querySelectorAll("a[href='#']")[2].click() })
-  //page.evaluate(() => { document.querySelectorAll("a[href='#']")[1].click() })
+  await page.evaluate(() => { document.querySelectorAll("a[href='#']")[2].click() })
   await page.waitForNavigation()
 
   const transactions = []
@@ -74,10 +77,9 @@ exports.scrape = async () => {
   transactions_of_page.forEach((transaction) => { transactions.push(transaction) })
 
   while( await check_if_next_transactions_page(page) ) {
-    await page.evaluate(() => {
-      const img = document.querySelectorAll("img[alt='次ページへ']")[0]
-      img.parentNode.click()
-    })
+
+    // Click the next page button
+    await page.evaluate(() => { document.querySelectorAll("img[alt='次ページへ']")[0].parentNode.click() })
     await page.waitForNavigation()
     const transactions_of_page = await get_transactions_from_table(page)
     transactions_of_page.forEach((transaction) => { transactions.push(transaction) })
