@@ -10,16 +10,15 @@ console.log(`TS3 data scraper`)
 
 // scrape periodically
 schedule.scheduleJob('0 2 * * *', () => {
-  scrape()
-    .then(table_content => {
+  console.log(`[Schedule] starting schedule scraping ${new Date()}`)
+  scrape().then(table_content => {
     const formatted_entries = formatter.format_entries(table_content)
     registration.register_transactions(formatted_entries)
   })
 })
 
 // Scrape immediatly
-scrape()
-  .then(table_content => {
-    const formatted_entries = formatter.format_entries(table_content)
-    registration.register_transactions(formatted_entries)
-  })
+scrape().then(table_content => {
+  const formatted_entries = formatter.format_entries(table_content)
+  registration.register_transactions(formatted_entries)
+})
