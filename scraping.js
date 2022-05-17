@@ -22,6 +22,7 @@ const login = async (page, {TS3_CARD_NUMBER, TS3_PASSWORD}) => page.evaluate( ({
 const check_if_next_transactions_page = async (page) =>  page.evaluate(() => { return !!document.querySelectorAll("img[alt='次ページへ']")[0] })
 
 const get_transactions_from_table = async (page) => page.evaluate(() => {
+  
   var table_content = []
 
   // NOTE: Can't use array functions because NodeList and not Array
@@ -86,6 +87,8 @@ exports.scrape = async () => {
   }
 
   await browser.close()
+
+  console.log(transactions);
 
 
   console.log(`[Scraper] Successfully scraped ${transactions.length} transactions`)
