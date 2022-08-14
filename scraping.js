@@ -49,11 +49,19 @@ exports.scrape = async () => {
   // returns the content of the target trtansaction table
 
   console.log(`[Scraper] Started scraping`)
-  // const browser = await puppeteer.launch()
-  const browser = await puppeteer.launch({
-    executablePath: '/usr/bin/google-chrome',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+
+  let browser
+
+  try {
+    browser = await puppeteer.launch({
+      executablePath: '/usr/bin/google-chrome',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    })
+  }
+  catch {
+    browser = await puppeteer.launch()
+  }
+  
   const page = await browser.newPage()
 
   await page.setViewport({ width: 1280, height: 800 })

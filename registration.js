@@ -6,11 +6,12 @@ dotenv.config()
 const {
   FINANCES_API_TOKEN,
   FINANCES_API_URL,
+  FINANCES_API_ACCOUNT_NAME,
 } = process.env
 
 exports.register_transactions = (transactions) => {
 
-  console.log(`[Finances API] Registerign transactions`);
+  console.log(`[Finances API] Registering transactions`);
 
   const url = `${FINANCES_API_URL}/transactions`
   const body = {transactions}
@@ -29,3 +30,6 @@ exports.register_transactions = (transactions) => {
     })
 
 }
+
+exports.finance_api_url = FINANCES_API_URL
+exports.finance_api_account = FINANCES_API_ACCOUNT_NAME
