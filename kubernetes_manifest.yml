@@ -17,4 +17,4 @@ spec:
         image: ${CONTAINER_IMAGE_TAGGED}
         envFrom:
         - secretRef:
-           name: environment-variables
+           name: ts3-scraper
