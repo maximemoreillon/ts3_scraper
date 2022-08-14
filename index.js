@@ -13,6 +13,7 @@ const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
 
+let success
 
 dotenv.config()
 
@@ -35,7 +36,9 @@ app.get('/', (req, res) => {
     finances_api: {
       url: finance_api_url,
       account: finance_api_account,
-    }
+    },
+    success,
+
   })
 })
 
@@ -46,11 +49,22 @@ app.listen(PORT, () => {
 
 console.log(`TS3 data scraper`)
 
-const scrape_and_register = () => {
-  scrape().then(table_content => {
+const scrape_and_register = async () => {
+
+  try {
+
+    const table_content = await scrape()
     const formatted_entries = format_entries(table_content)
     register_transactions(formatted_entries)
-  })
+    
+    success = true
+  } 
+  catch (error) {
+    console.error(error)
+    success = false
+  }
+
+  
 }
 
 // scrape periodically
