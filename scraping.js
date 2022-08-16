@@ -102,8 +102,6 @@ exports.scrape = async () => {
 
   await browser.close()
 
-  console.log(transactions);
-
 
   console.log(`[Scraper] Successfully scraped ${transactions.length} transactions`)
 

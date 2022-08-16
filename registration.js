@@ -13,7 +13,7 @@ exports.register_transactions = (transactions) => {
 
   console.log(`[Finances API] Registering transactions`);
 
-  const url = `${FINANCES_API_URL}/transactions`
+  const url = `${FINANCES_API_URL}/accounts/${FINANCES_API_ACCOUNT_NAME}/transactions`
   const body = {transactions}
   const headers = {
     'Content-Type': 'application/json',

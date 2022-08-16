@@ -8,12 +8,6 @@ const col_indices = {
 }
 const amount_col = 6
 
-const {
-  FINANCES_API_ACCOUNT_NAME
-} = process.env
-
-
-
 const format_date = (raw_date_string) => {
 
   const formatted_date_string = `20${raw_date_string}`
@@ -44,7 +38,6 @@ exports.format_entries = (rows) => {
       date: format_date(cols[col_indices.date]),
       amount: format_amount(cols[col_indices.amount]),
       description: cols[col_indices.description],
-      account: FINANCES_API_ACCOUNT_NAME,
       currency: 'JPY',
     }
   })
