@@ -1,35 +1,17 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: CronJob
 metadata:
   name: ${APPLICATION_NAME}
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ${APPLICATION_NAME}
-  template:
-    metadata:
-      labels:
-        app: ${APPLICATION_NAME}
+  schedule: "0 7 * * *"
+  jobTemplate:
     spec:
-      containers:
-      - name: ${APPLICATION_NAME}
-        image: ${CONTAINER_IMAGE_TAGGED}
-        ports:
-        - containerPort: 80
-        envFrom:
-        - secretRef:
-           name: ts3-scraper
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ${APPLICATION_NAME}
-spec:
-  ports:
-  - port: 80
-    nodePort: ${K8S_NODEPORT_PORT}
-  selector:
-    app: ${APPLICATION_NAME}
-  type: NodePort
----
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: ${APPLICATION_NAME}
+              image: ${CONTAINER_IMAGE_TAGGED}
+              envFrom:
+                - secretRef:
+                    name: ts3-scraper

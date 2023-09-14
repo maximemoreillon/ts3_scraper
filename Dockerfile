@@ -15,7 +15,6 @@ RUN apt-get update && apt-get install curl gnupg -y \
 WORKDIR /usr/src/app
 COPY . .
 RUN npm install
-EXPOSE 80
 CMD [ "node", "index.js" ]
 
 
