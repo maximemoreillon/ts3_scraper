@@ -1,10 +1,10 @@
-const { scrape } = require("./scraping.js")
-const { register_transactions } = require("./registration.js")
-const { version } = require("./package.json")
+import { scrape } from "./scraping"
+import { register_transactions } from "./registration"
+import { version } from "./package.json"
 
-const { format_entries } = require("./formatter.js")
+import { format_entries } from "./formatter"
 
-const dotenv = require("dotenv")
+import dotenv from "dotenv"
 
 dotenv.config()
 
@@ -15,7 +15,7 @@ console.log(`TS3 transaction scraper v${version}`)
 const scrape_and_register = async () => {
   const table_content = await scrape()
   const formatted_entries = format_entries(table_content)
-  register_transactions(formatted_entries)
+  await register_transactions(formatted_entries)
 }
 
 // Scrape immediatly

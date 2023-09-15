@@ -6,3 +6,5 @@ config/credit_card.js
 secrets.js
 converter.js
 .env
+*.jpg
+*.png
