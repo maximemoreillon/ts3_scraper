@@ -1,8 +1,7 @@
 import { scrape } from "./scraping"
 import { register_transactions } from "./registration"
-import { version } from "./package.json"
-
 import { format_entries } from "./formatter"
+import { version } from "./package.json"
 
 import dotenv from "dotenv"
 
@@ -18,5 +17,4 @@ const scrape_and_register = async () => {
   await register_transactions(formatted_entries)
 }
 
-// Scrape immediatly
 scrape_and_register()

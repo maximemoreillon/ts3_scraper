@@ -1,10 +1,16 @@
-steps_screenshots/
-screenshots/
+
 node_modules/
+.env
+
+# Legacy
 config/credentials.js
 config/credit_card.js
 secrets.js
 converter.js
-.env
+
+
+# Screenshots
+steps_screenshots/
+screenshots/
 *.jpg
 *.png

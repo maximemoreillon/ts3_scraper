@@ -1,3 +1,3 @@
-# Credit card transaction scraper
+# TS3 transactions scraper
 
-This is a web scraper built using puppeteer designed to retrieve the list of transactions of a credit card for the current month.
+A puppeteer scraper that retrieves one's transactions from the TS3 web interface
