@@ -87,7 +87,7 @@ export const scrape = async () => {
   console.log("[Scraper] Selecting month...")
   await (await page.$$("a[href='#']"))[2].click()
   try {
-    await page.waitForNavigation()
+    await page.waitForNavigation({ timeout: 3000 })
   } catch (error) {}
   console.log("[Scraper] Month selected")
   await page.screenshot({ path: "./screenshot.png" })
@@ -104,7 +104,7 @@ export const scrape = async () => {
     console.log("[Scraper] Another page is available")
     await page.click("img[alt='次ページへ']")
     try {
-      await page.waitForNavigation()
+      await page.waitForNavigation({ timeout: 3000 })
     } catch (error) {}
     const transactions_of_page = await get_transactions_from_table(page)
     transactions_of_page.forEach((transaction) => {

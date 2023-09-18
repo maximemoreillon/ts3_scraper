@@ -1,6 +1,6 @@
 import { scrape } from "./scraping"
 import { register_transactions } from "./registration"
-import { format_entries } from "./formatter"
+import { format_entries, renameDuplicates } from "./formatter"
 import { version } from "./package.json"
 
 import dotenv from "dotenv"
@@ -14,7 +14,8 @@ console.log(`TS3 transaction scraper v${version}`)
 const scrape_and_register = async () => {
   const table_content = await scrape()
   const formatted_entries = format_entries(table_content)
-  await register_transactions(formatted_entries)
+  const formatted_entries_deducplicated = renameDuplicates(formatted_entries)
+  await register_transactions(formatted_entries_deducplicated)
 }
 
 scrape_and_register()
