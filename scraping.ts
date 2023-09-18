@@ -90,7 +90,6 @@ export const scrape = async () => {
     await page.waitForNavigation({ timeout: 3000 })
   } catch (error) {}
   console.log("[Scraper] Month selected")
-  await page.screenshot({ path: "./screenshot.png" })
 
   const transactions: any = []
   const transactions_of_page = await get_transactions_from_table(page)

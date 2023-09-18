@@ -29,9 +29,8 @@ export const format_entries = (rows: any[]) =>
       currency: "JPY",
     }))
 
-export const renameDuplicates = (transactions: any[]) => {
-  // For each does not sound like a good idea. Instead, try to make a copy of original
-  return transactions.reduce((a, t, i) => {
+export const renameDuplicates = (transactions: any[]) =>
+  transactions.reduce((a, t, i) => {
     const duplicateCount = transactions
       .slice(0, i)
       .filter((e) => JSON.stringify(e) === JSON.stringify(t)).length
@@ -45,4 +44,3 @@ export const renameDuplicates = (transactions: any[]) => {
 
     return [...a, formattedItem]
   }, [])
-}
