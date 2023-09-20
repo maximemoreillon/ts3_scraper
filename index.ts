@@ -22,6 +22,7 @@ const scrape_and_register = async () => {
       message: `Successfully scraped ${formatted_entries_deduplicated.length} transactions`,
     })
   } catch (error) {
+    console.error(error)
     logger.error({
       message: `Scraping failed`,
     })
