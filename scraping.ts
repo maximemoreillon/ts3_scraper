@@ -65,7 +65,9 @@ export const scrape = async () => {
   await page.setViewport({ width: 1280, height: 800 })
   await page.goto(TS3_LOGIN_URL)
   await login(page)
-  await page.waitForNavigation()
+  try {
+    await page.waitForNavigation({ timeout: 3000 })
+  } catch (error) {}
   console.log("[Scraper] Logged in")
 
   // Click next
@@ -79,7 +81,9 @@ export const scrape = async () => {
   // Click next
   console.log("[Scraper] Pressing next again...")
   await page.click("input[type='button']")
-  await page.waitForNavigation()
+  try {
+    await page.waitForNavigation({ timeout: 3000 })
+  } catch (error) {}
   console.log("[Scraper] Pressed next again")
 
   // Month selection page
