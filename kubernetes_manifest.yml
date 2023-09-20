@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: ${APPLICATION_NAME}
 spec:
-  schedule: "0 11 * * *"
+  schedule: "30 11 * * *"
   jobTemplate:
     spec:
       template:
@@ -12,6 +12,9 @@ spec:
           containers:
             - name: ${APPLICATION_NAME}
               image: ${CONTAINER_IMAGE_TAGGED}
+              env:
+                - name: LOKI_URL
+                  value: http://loki:3100
               envFrom:
                 - secretRef:
                     name: ts3-scraper
