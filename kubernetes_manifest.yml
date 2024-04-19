@@ -14,7 +14,7 @@ spec:
               image: ${CONTAINER_IMAGE_TAGGED}
               env:
                 - name: LOKI_URL
-                  value: http://loki:3100
+                  value: http://loki.monitoring:3100
               envFrom:
                 - secretRef:
                     name: ts3-scraper
