@@ -65,34 +65,27 @@ export const scrape = async () => {
   await page.setViewport({ width: 1280, height: 800 })
   await page.goto(TS3_LOGIN_URL)
   await login(page)
-  try {
-    await page.waitForNavigation({ timeout: 3000 })
-  } catch (error) {}
+
+  await page.waitForSelector("a[href='#']")
   console.log("[Scraper] Logged in")
 
   // Click next
   console.log("[Scraper] Pressing next...")
   await page.click("a[href='#']")
   console.log("[Scraper] Pressed next")
-  try {
-    await page.waitForNavigation()
-  } catch (error) {}
+  await page.waitForSelector("input[type='button']")
 
   // Click next
   console.log("[Scraper] Pressing next again...")
   await page.click("input[type='button']")
-  try {
-    await page.waitForNavigation({ timeout: 3000 })
-  } catch (error) {}
+  await page.waitForSelector("a[href='#']")
   console.log("[Scraper] Pressed next again")
 
   // Month selection page
   // Select last available month (index = 2)
   console.log("[Scraper] Selecting month...")
   await (await page.$$("a[href='#']"))[2].click()
-  try {
-    await page.waitForNavigation({ timeout: 3000 })
-  } catch (error) {}
+  await page.waitForSelector("table")
   console.log("[Scraper] Month selected")
 
   const transactions: any = []
@@ -106,19 +99,20 @@ export const scrape = async () => {
     // Click the next page button
     console.log("[Scraper] Another page is available")
     await page.click("img[alt='次ページへ']")
-    try {
-      await page.waitForNavigation({ timeout: 3000 })
-    } catch (error) {}
+    await page.waitForSelector("table") // WARNING Maybe this is not the wait option
     const transactions_of_page = await get_transactions_from_table(page)
+
     transactions_of_page.forEach((transaction) => {
       transactions.push(transaction)
     })
   }
 
+  console.log("[Scraper] No more pages available")
+
   await browser.close()
 
   console.log(
-    `[Scraper] Successfully scraped ${transactions.length} transactions`
+    `[Scraper] Successfully scraped ${transactions.length} rows in transaction table`
   )
 
   return transactions
