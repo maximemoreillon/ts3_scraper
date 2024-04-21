@@ -66,26 +66,33 @@ export const scrape = async () => {
   await page.goto(TS3_LOGIN_URL)
   await login(page)
 
-  await page.waitForSelector("a[href='#']")
+  await page.waitForSelector(".greeting")
   console.log("[Scraper] Logged in")
 
-  // Click next
-  console.log("[Scraper] Pressing next...")
+  // TOP: select card
+  console.log("[Scraper] Selecting card...")
   await page.click("a[href='#']")
-  console.log("[Scraper] Pressed next")
-  await page.waitForSelector("input[type='button']")
+  await page.waitForSelector("form[name='FbADMC864'")
 
-  // Click next
-  console.log("[Scraper] Pressing next again...")
+  // Card selected: Click next
+  console.log("[Scraper] Card selected, clicking next")
   await page.click("input[type='button']")
-  await page.waitForSelector("a[href='#']")
+  await page.waitForSelector('table[summary="切り替え機能の選択"]')
   console.log("[Scraper] Pressed next again")
 
   // Month selection page
   // Select last available month (index = 2)
   console.log("[Scraper] Selecting month...")
-  await (await page.$$("a[href='#']"))[2].click()
-  await page.waitForSelector("table")
+
+  const monthSelectionTable = await page.$(
+    'table[summary="切り替え機能の選択"]'
+  )
+  if (!monthSelectionTable) throw "Month selection table not found"
+  const lastMonthRow = (await monthSelectionTable.$$("tr")).at(-1)
+  await (await lastMonthRow?.$("a[href='#']"))?.click()
+
+  // This is not a good selector as previous page already has a table
+  await page.waitForSelector("form[name='FbADMC867")
   console.log("[Scraper] Month selected")
 
   const transactions: any = []
@@ -99,7 +106,9 @@ export const scrape = async () => {
     // Click the next page button
     console.log("[Scraper] Another page is available")
     await page.click("img[alt='次ページへ']")
-    await page.waitForSelector("table") // WARNING Maybe this is not the wait option
+    try {
+      await page.waitForNavigation({ timeout: 3000 })
+    } catch (error) {}
     const transactions_of_page = await get_transactions_from_table(page)
 
     transactions_of_page.forEach((transaction) => {
