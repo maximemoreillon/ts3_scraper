@@ -13,8 +13,11 @@ spec:
             - name: ${APPLICATION_NAME}
               image: ${CONTAINER_IMAGE_TAGGED}
               env:
-                - name: LOKI_URL
-                  value: http://loki.monitoring:3100
+                - name: FINANCES_API_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: oidc-token
+                      key: OIDC_M2M_ACCESS_TOKEN
               envFrom:
                 - secretRef:
                     name: ts3-scraper
