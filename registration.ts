@@ -3,13 +3,13 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
-const { FINANCES_API_TOKEN, FINANCES_API_URL, FINANCES_API_ACCOUNT } =
+const { FINANCES_API_TOKEN, FINANCES_API_URL, FINANCES_API_ACCOUNT_ID } =
   process.env
 
 export const register_transactions = async (transactions: any[]) => {
   console.log(`[Finances API] Registering transactions`)
 
-  const url = `${FINANCES_API_URL}/accounts/${FINANCES_API_ACCOUNT}/transactions`
+  const url = `${FINANCES_API_URL}/accounts/${FINANCES_API_ACCOUNT_ID}/transactions`
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${FINANCES_API_TOKEN}`,
