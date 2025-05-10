@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: ${APPLICATION_NAME}
 spec:
-  schedule: "5 16 * * *"
+  schedule: "45 16 * * *"
   jobTemplate:
     spec:
       template:
