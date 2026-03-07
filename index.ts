@@ -1,34 +1,33 @@
-import { scrape } from "./scraping"
-import { register_transactions } from "./registration"
-import { format_entries, renameDuplicates } from "./formatter"
-import { version } from "./package.json"
-import { logger } from "./logger"
+import dotenv from "dotenv";
+dotenv.config();
 
-import dotenv from "dotenv"
+import { scrape } from "./scraping";
+import { register_transactions } from "./registration";
+import { format_entries, renameDuplicates } from "./formatter";
+import { version } from "./package.json";
+import { logger } from "./logger";
 
-dotenv.config()
+process.env.TZ = "Asia/Tokyo";
 
-process.env.TZ = "Asia/Tokyo"
-
-console.log(`TS3 transaction scraper v${version}`)
+console.log(`TS3 transaction scraper v${version}`);
 
 const scrape_and_register = async () => {
   try {
-    const table_content = await scrape()
-    const formatted_entries = format_entries(table_content)
-    const formatted_entries_deduplicated = renameDuplicates(formatted_entries)
-    await register_transactions(formatted_entries_deduplicated)
+    const table_content = await scrape();
+    const formatted_entries = format_entries(table_content);
+    const formatted_entries_deduplicated = renameDuplicates(formatted_entries);
+    await register_transactions(formatted_entries_deduplicated);
     logger.info({
       message: `Successfully scraped ${formatted_entries_deduplicated.length} transactions`,
-    })
+    });
   } catch (error) {
     logger.error({
       message: `Scraping failed`,
-    })
-    throw error
+    });
+    throw error;
   } finally {
-    logger.close()
+    logger.close();
   }
-}
+};
 
-scrape_and_register()
+scrape_and_register();
