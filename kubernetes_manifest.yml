@@ -30,7 +30,6 @@ apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: env
-  namespace: ts3-scraper-env
 spec:
   refreshInterval: 5m0s
   secretStoreRef:
