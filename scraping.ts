@@ -102,7 +102,12 @@ export const scrape = async () => {
   while (await check_if_next_transactions_page(page)) {
     // Click the next page button
     console.log("[Scraper] Another page is available");
-    await page.click("img[alt='次ページへ']");
+
+    await page.waitForSelector("a:has(img[alt='次ページへ'])", {
+      visible: true,
+    });
+
+    await page.click("a:has(img[alt='次ページへ'])");
     try {
       await page.waitForNavigation({ timeout: 3000 });
     } catch (error) {}
