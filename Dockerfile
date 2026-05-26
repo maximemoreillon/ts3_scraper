@@ -1,4 +1,4 @@
-FROM ghcr.io/puppeteer/puppeteer:16.1.0
+FROM ghcr.io/puppeteer/puppeteer:21.2.1
 USER root
 
 WORKDIR /usr/src/app
