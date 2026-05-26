@@ -103,9 +103,11 @@ export const scrape = async () => {
     // Click the next page button
     console.log("[Scraper] Another page is available");
 
-    await page.waitForSelector("a:has(img[alt='次ページへ'])", {
-      visible: true,
-    });
+    try {
+      await page.waitForSelector("a:has(img[alt='次ページへ'])", {
+        visible: true,
+      });
+    } catch (error) {}
 
     await page.click("a:has(img[alt='次ページへ'])");
     try {
