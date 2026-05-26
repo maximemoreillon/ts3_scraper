@@ -16,13 +16,16 @@ const scrape_and_register = async () => {
     const table_content = await scrape();
     const formatted_entries = format_entries(table_content);
     const formatted_entries_deduplicated = renameDuplicates(formatted_entries);
+    console.log(
+      `Scraped ${formatted_entries_deduplicated.length} transactions`,
+    );
     await register_transactions(formatted_entries_deduplicated);
     logger.info({
       message: `Successfully scraped ${formatted_entries_deduplicated.length} transactions`,
     });
   } catch (error) {
     logger.error({
-      message: `Scraping failed`,
+      message: error,
     });
     throw error;
   } finally {
