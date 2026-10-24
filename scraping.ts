@@ -1,4 +1,5 @@
 import puppeteer, { Page } from "puppeteer";
+import { error } from "winston";
 
 const {
   TS3_CARD_NUMBER = "",
@@ -59,72 +60,82 @@ export const scrape = async () => {
   }
 
   const page = await browser.newPage();
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  );
   await page.setViewport({ width: 1280, height: 800 });
   await page.goto(TS3_LOGIN_URL);
-  await login(page);
 
-  await page.waitForSelector(".greeting");
-  console.log("[Scraper] Logged in");
+  try {
+    await page.waitForSelector("input[name='vo.CORPCARDNO1']");
+    await login(page);
 
-  // TOP: select card
-  console.log("[Scraper] Selecting card...");
-  await page.click("a[href='#']");
-  await page.waitForSelector("form[name='FbADMC864'");
+    await page.waitForSelector(".greeting");
+    console.log("[Scraper] Logged in");
 
-  // Card selected: Click next
-  console.log("[Scraper] Card selected, clicking next");
-  await page.click("input[type='button']");
-  await page.waitForSelector('table[summary="切り替え機能の選択"]');
-  console.log("[Scraper] Pressed next again");
+    // TOP: select card
+    console.log("[Scraper] Selecting card...");
+    await page.click("a[href='#']");
+    await page.waitForSelector("form[name='FbADMC864'");
 
-  // Month selection page
-  // Select last available month (index = 2)
-  console.log("[Scraper] Selecting month...");
+    // Card selected: Click next
+    console.log("[Scraper] Card selected, clicking next");
+    await page.click("input[type='button']");
+    await page.waitForSelector('table[summary="切り替え機能の選択"]');
+    console.log("[Scraper] Pressed next again");
 
-  const monthSelectionTable = await page.$(
-    'table[summary="切り替え機能の選択"]',
-  );
-  if (!monthSelectionTable) throw "Month selection table not found";
-  const lastMonthRow = (await monthSelectionTable.$$("tr")).at(-1);
-  await (await lastMonthRow?.$("a[href='#']"))?.click();
+    // Month selection page
+    // Select last available month (index = 2)
+    console.log("[Scraper] Selecting month...");
 
-  // This is not a good selector as previous page already has a table
-  await page.waitForSelector("form[name='FbADMC867");
-  console.log("[Scraper] Month selected");
+    const monthSelectionTable = await page.$(
+      'table[summary="切り替え機能の選択"]',
+    );
+    if (!monthSelectionTable) throw "Month selection table not found";
+    const lastMonthRow = (await monthSelectionTable.$$("tr")).at(-1);
+    await (await lastMonthRow?.$("a[href='#']"))?.click();
 
-  const transactions: any = [];
-  const transactions_of_page = await get_transactions_from_table(page);
+    // This is not a good selector as previous page already has a table
+    await page.waitForSelector("form[name='FbADMC867");
+    console.log("[Scraper] Month selected");
 
-  transactions_of_page.forEach((transaction) => {
-    transactions.push(transaction);
-  });
-
-  while (await check_if_next_transactions_page(page)) {
-    // Click the next page button
-    console.log("[Scraper] Another page is available");
-
-    await page.waitForSelector("a:has(img[alt='次ページへ'])", {
-      visible: true,
-    });
-
-    await page.click("a:has(img[alt='次ページへ'])");
-    try {
-      await page.waitForNavigation({ timeout: 3000 });
-    } catch (error) {}
+    const transactions: any = [];
     const transactions_of_page = await get_transactions_from_table(page);
 
     transactions_of_page.forEach((transaction) => {
       transactions.push(transaction);
     });
+
+    while (await check_if_next_transactions_page(page)) {
+      // Click the next page button
+      console.log("[Scraper] Another page is available");
+
+      await page.waitForSelector("a:has(img[alt='次ページへ'])", {
+        visible: true,
+      });
+
+      await page.click("a:has(img[alt='次ページへ'])");
+      try {
+        await page.waitForNavigation({ timeout: 3000 });
+      } catch (error) {}
+      const transactions_of_page = await get_transactions_from_table(page);
+
+      transactions_of_page.forEach((transaction) => {
+        transactions.push(transaction);
+      });
+    }
+
+    console.log("[Scraper] No more pages available");
+
+    console.log(
+      `[Scraper] Successfully scraped ${transactions.length} rows in transaction table`,
+    );
+
+    return transactions;
+  } catch (error) {
+    // await page.screenshot({ path: "screenshot.png" });
+    throw error;
+  } finally {
+    await browser.close();
   }
-
-  console.log("[Scraper] No more pages available");
-
-  await browser.close();
-
-  console.log(
-    `[Scraper] Successfully scraped ${transactions.length} rows in transaction table`,
-  );
-
-  return transactions;
 };
