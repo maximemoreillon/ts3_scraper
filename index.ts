@@ -5,7 +5,6 @@ import { scrape } from "./scraping";
 import { register_transactions } from "./registration";
 import { format_entries, renameDuplicates } from "./formatter";
 import { version } from "./package.json";
-import { logger, format_error } from "./logger";
 
 process.env.TZ = "Asia/Tokyo";
 
@@ -20,13 +19,11 @@ const scrape_and_register = async () => {
       `Scraped ${formatted_entries_deduplicated.length} transactions`,
     );
     await register_transactions(formatted_entries_deduplicated);
-    logger.info({
-      message: `Successfully scraped ${formatted_entries_deduplicated.length} transactions`,
-    });
+    console.log(
+      `Successfully scraped ${formatted_entries_deduplicated.length} transactions`,
+    );
   } catch (error) {
-    logger.error({
-      message: format_error(error),
-    });
+    console.error(error);
     // Already logged: set the exit code instead of rethrowing a duplicate stack trace
     process.exitCode = 1;
   }

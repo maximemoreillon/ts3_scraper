@@ -1,5 +1,4 @@
 import puppeteer, { Page } from "puppeteer";
-import { error } from "winston";
 
 const {
   TS3_CARD_NUMBER = "",
