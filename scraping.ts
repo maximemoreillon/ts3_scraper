@@ -19,12 +19,39 @@ const login = async (page: Page) => {
   await page.click("a[href='#']");
 };
 
+const NEXT_PAGE_SELECTOR = "a:has(img[alt='次ページへ'])";
+const MAX_PAGES = 50;
+
 const check_if_next_transactions_page = async (page: Page) =>
   !!(await page.$("img[alt='次ページへ']"));
 
+const get_table_fingerprint = (page: Page) =>
+  page.evaluate(
+    () => document.querySelectorAll("table")[4]?.textContent ?? "",
+  );
+
+// Works for both full page navigation and in-place (AJAX) table updates:
+// waits until the transactions table content differs from before the click
+const go_to_next_page = async (page: Page) => {
+  const previous = await get_table_fingerprint(page);
+  await page.click(NEXT_PAGE_SELECTOR);
+  await page.waitForFunction(
+    (prev) => {
+      const table = document.querySelectorAll("table")[4];
+      return (
+        document.readyState === "complete" &&
+        !!table &&
+        table.textContent !== prev
+      );
+    },
+    { timeout: 30000 },
+    previous,
+  );
+};
+
 const get_transactions_from_table = async (page: Page) =>
   page.evaluate(() => {
-    var table_content: any[] = [];
+    var table_content: string[][] = [];
 
     // NOTE: Can't use array functions because NodeList and not Array
     var rows = document.querySelectorAll("table")[4].querySelectorAll("tr");
@@ -35,7 +62,9 @@ const get_transactions_from_table = async (page: Page) =>
 
       const cells = rows[row_index].querySelectorAll("td, th");
       for (var cell_index = 0; cell_index < cells.length; cell_index++) {
-        var content = cells[cell_index].querySelectorAll("span")[0].innerHTML;
+        // textContent decodes entities (&amp; -> &), falls back to the cell if it has no span
+        var cell = cells[cell_index];
+        var content = (cell.querySelector("span") ?? cell).textContent ?? "";
         table_content[table_content.length - 1].push(content); // Push current cell content to array
       }
     }
@@ -85,13 +114,13 @@ export const scrape = async () => {
     console.log("[Scraper] Pressed next again");
 
     // Month selection page
-    // Select last available month (index = 2)
+    // Select last available month (last row)
     console.log("[Scraper] Selecting month...");
 
     const monthSelectionTable = await page.$(
       'table[summary="切り替え機能の選択"]',
     );
-    if (!monthSelectionTable) throw "Month selection table not found";
+    if (!monthSelectionTable) throw new Error("Month selection table not found");
     const lastMonthRow = (await monthSelectionTable.$$("tr")).at(-1);
     await (await lastMonthRow?.$("a[href='#']"))?.click();
 
@@ -99,25 +128,23 @@ export const scrape = async () => {
     await page.waitForSelector("form[name='FbADMC867");
     console.log("[Scraper] Month selected");
 
-    const transactions: any = [];
+    const transactions: string[][] = [];
     const transactions_of_page = await get_transactions_from_table(page);
 
     transactions_of_page.forEach((transaction) => {
       transactions.push(transaction);
     });
 
+    let page_count = 1;
     while (await check_if_next_transactions_page(page)) {
+      if (++page_count > MAX_PAGES)
+        throw new Error("Too many transaction pages, aborting");
+
       // Click the next page button
       console.log("[Scraper] Another page is available");
 
-      await page.waitForSelector("a:has(img[alt='次ページへ'])", {
-        visible: true,
-      });
-
-      await page.click("a:has(img[alt='次ページへ'])");
-      try {
-        await page.waitForNavigation({ timeout: 3000 });
-      } catch (error) {}
+      await page.waitForSelector(NEXT_PAGE_SELECTOR, { visible: true });
+      await go_to_next_page(page);
       const transactions_of_page = await get_transactions_from_table(page);
 
       transactions_of_page.forEach((transaction) => {

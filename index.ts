@@ -5,7 +5,7 @@ import { scrape } from "./scraping";
 import { register_transactions } from "./registration";
 import { format_entries, renameDuplicates } from "./formatter";
 import { version } from "./package.json";
-import { logger } from "./logger";
+import { logger, format_error } from "./logger";
 
 process.env.TZ = "Asia/Tokyo";
 
@@ -25,11 +25,10 @@ const scrape_and_register = async () => {
     });
   } catch (error) {
     logger.error({
-      message: error,
+      message: format_error(error),
     });
-    throw error;
-  } finally {
-    logger.close();
+    // Already logged: set the exit code instead of rethrowing a duplicate stack trace
+    process.exitCode = 1;
   }
 };
 
