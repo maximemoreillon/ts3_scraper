@@ -1,5 +1,3 @@
-import { z } from "zod"
-
 const AMOUNT_COL = 6
 const DESCRIPTION_COL = 2
 const DATE_COL = 0
@@ -10,31 +8,30 @@ const format_date = (raw_date_string: string) => {
     .replace("日", "")
     .replace(/ /g, "") // remove spaces
 
-  return new Date(formatted_date_string)
+  const date = new Date(formatted_date_string)
+  if (Number.isNaN(date.getTime())) throw `Invalid date: ${raw_date_string}`
+  return date
 }
 
 const format_amount = (amount_string: string) => {
   const amount_string_formatted = amount_string
     .replace("円", "")
     .replace(/,/g, "") // all thousands separators, not just the first
+  const amount = Number(amount_string_formatted)
+  if (Number.isNaN(amount)) throw `Invalid amount: ${amount_string}`
   // NOTE: negative because payment
-  return -Number(amount_string_formatted)
+  return -amount
 }
 
-// z.date() rejects Invalid Date and z.number() rejects NaN/Infinity
-const transactionSchema = z.object({
-  date: z.date(),
-  amount: z.number(),
-  description: z.string().min(1),
-  currency: z.literal("JPY"),
-})
+export type Transaction = {
+  date: Date
+  amount: number
+  description: string
+  currency: "JPY"
+}
 
-const transactionsSchema = z.array(transactionSchema)
-
-export type Transaction = z.infer<typeof transactionSchema>
-
-export const format_entries = (rows: string[][]): Transaction[] => {
-  const entries = rows
+export const format_entries = (rows: string[][]): Transaction[] =>
+  rows
     // ignore invalid rows (blank amount cell, trim() also strips full-width spaces)
     .filter((cols) => cols[AMOUNT_COL]?.trim())
     .map((cols) => ({
@@ -43,15 +40,6 @@ export const format_entries = (rows: string[][]): Transaction[] => {
       description: cols[DESCRIPTION_COL],
       currency: "JPY",
     }))
-
-  const result = transactionsSchema.safeParse(entries)
-  if (!result.success)
-    throw new Error(
-      `Invalid transactions, aborting before registration:\n${z.prettifyError(result.error)}`
-    )
-
-  return result.data
-}
 
 export const renameDuplicates = (transactions: Transaction[]) =>
   transactions.reduce<Transaction[]>((a, t, i) => {
