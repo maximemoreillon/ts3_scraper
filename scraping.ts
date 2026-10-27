@@ -75,17 +75,10 @@ export const scrape = async () => {
 
   console.log(`[Scraper] Started scraping`);
 
-  let browser;
-
-  try {
-    browser = await puppeteer.launch({
-      headless: "new",
-      executablePath: "/usr/bin/google-chrome",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-  } catch {
-    browser = await puppeteer.launch({ headless: "new" });
-  }
+  // The container runs as root, which Chrome only allows without its sandbox
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
 
   const page = await browser.newPage();
   await page.setUserAgent(
