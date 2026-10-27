@@ -8,6 +8,9 @@ spec:
     spec:
       backoffLimit: 0
       template:
+        metadata:
+          annotations:
+            maximemoreillon.com/collect-logs: "true"
         spec:
           restartPolicy: Never
           containers:
