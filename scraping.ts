@@ -1,4 +1,5 @@
 import puppeteer, { Page } from "puppeteer";
+import { logger } from "./logger";
 
 const {
   TS3_CARD_NUMBER = "",
@@ -73,7 +74,7 @@ const get_transactions_from_table = async (page: Page) =>
 export const scrape = async () => {
   // returns the content of the target trtansaction table
 
-  console.log(`[Scraper] Started scraping`);
+  logger.info(`[Scraper] Started scraping`);
 
   // The container runs as root, which Chrome only allows without its sandbox
   const browser = await puppeteer.launch({
@@ -92,22 +93,22 @@ export const scrape = async () => {
     await login(page);
 
     await page.waitForSelector(".greeting");
-    console.log("[Scraper] Logged in");
+    logger.info("[Scraper] Logged in");
 
     // TOP: select card
-    console.log("[Scraper] Selecting card...");
+    logger.info("[Scraper] Selecting card...");
     await page.click("a[href='#']");
     await page.waitForSelector("form[name='FbADMC864'");
 
     // Card selected: Click next
-    console.log("[Scraper] Card selected, clicking next");
+    logger.info("[Scraper] Card selected, clicking next");
     await page.click("input[type='button']");
     await page.waitForSelector('table[summary="切り替え機能の選択"]');
-    console.log("[Scraper] Pressed next again");
+    logger.info("[Scraper] Pressed next again");
 
     // Month selection page
     // Select last available month (last row)
-    console.log("[Scraper] Selecting month...");
+    logger.info("[Scraper] Selecting month...");
 
     const monthSelectionTable = await page.$(
       'table[summary="切り替え機能の選択"]',
@@ -118,7 +119,7 @@ export const scrape = async () => {
 
     // This is not a good selector as previous page already has a table
     await page.waitForSelector("form[name='FbADMC867");
-    console.log("[Scraper] Month selected");
+    logger.info("[Scraper] Month selected");
 
     const transactions: string[][] = [];
     const transactions_of_page = await get_transactions_from_table(page);
@@ -133,7 +134,7 @@ export const scrape = async () => {
         throw new Error("Too many transaction pages, aborting");
 
       // Click the next page button
-      console.log("[Scraper] Another page is available");
+      logger.info("[Scraper] Another page is available");
 
       await page.waitForSelector(NEXT_PAGE_SELECTOR, { visible: true });
       await go_to_next_page(page);
@@ -144,10 +145,11 @@ export const scrape = async () => {
       });
     }
 
-    console.log("[Scraper] No more pages available");
+    logger.info("[Scraper] No more pages available");
 
-    console.log(
-      `[Scraper] Successfully scraped ${transactions.length} rows in transaction table`,
+    logger.info(
+      { rows: transactions.length },
+      "[Scraper] Successfully scraped transaction table",
     );
 
     return transactions;

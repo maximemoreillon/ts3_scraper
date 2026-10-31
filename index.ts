@@ -5,25 +5,28 @@ import { scrape } from "./scraping";
 import { register_transactions } from "./registration";
 import { format_entries, renameDuplicates } from "./formatter";
 import { version } from "./package.json";
+import { logger } from "./logger";
 
 process.env.TZ = "Asia/Tokyo";
 
-console.log(`TS3 transaction scraper v${version}`);
+logger.info(`TS3 transaction scraper v${version}`);
 
 const scrape_and_register = async () => {
   try {
     const table_content = await scrape();
     const formatted_entries = format_entries(table_content);
     const formatted_entries_deduplicated = renameDuplicates(formatted_entries);
-    console.log(
-      `Scraped ${formatted_entries_deduplicated.length} transactions`,
+    logger.info(
+      { count: formatted_entries_deduplicated.length },
+      "Transactions scraped",
     );
     await register_transactions(formatted_entries_deduplicated);
-    console.log(
-      `Successfully scraped ${formatted_entries_deduplicated.length} transactions`,
+    logger.info(
+      { count: formatted_entries_deduplicated.length },
+      "Transactions registered",
     );
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Scrape and register failed");
     // Already logged: set the exit code instead of rethrowing a duplicate stack trace
     process.exitCode = 1;
   }
